@@ -22,24 +22,24 @@ fi
 echo "Proceeding with replication setup..."
 
 # Start replication on the replica server
-mysql -h "$REPLICA_DB_SERVER_NAME".mysql.database.azure.com -u "$DB_USER_NAME" -p'"$DB_USER_NAME"' -e "call mysql.az_replication_start;"
+mysql -h "$REPLICA_DB_SERVER_NAME".mysql.database.azure.com -u "$DB_USER_NAME" -p'"$DB_PASSWORD"' -e "call mysql.az_replication_start;"
 
 # Check replication status and wait until it catches up with the master (Seconds_Behind_Master is 0)
-seconds_behind_master=$(mysql -h "$REPLICA_DB_SERVER_NAME".mysql.database.azure.com -u "$DB_USER_NAME" -p'"$DB_USER_NAME"' -e "show slave status\G;" | awk '/Seconds_Behind_Master/{print $2}')
+seconds_behind_master=$(mysql -h "$REPLICA_DB_SERVER_NAME".mysql.database.azure.com -u "$DB_USER_NAME" -p'"$DB_PASSWORD"' -e "show slave status\G;" | awk '/Seconds_Behind_Master/{print $2}')
 while [[ $seconds_behind_master -gt 0 ]]
 do
     echo "Replication is still catching up. Waiting for the replica to be in sync..."
     sleep 10
-    seconds_behind_master=$(mysql -h "$REPLICA_DB_SERVER_NAME".mysql.database.azure.com -u "$DB_USER_NAME" -p'"$DB_USER_NAME"' -e "show slave status\G;" | awk '/Seconds_Behind_Master/{print $2}')
+    seconds_behind_master=$(mysql -h "$REPLICA_DB_SERVER_NAME".mysql.database.azure.com -u "$DB_USER_NAME" -p'"$DB_PASSWORD"' -e "show slave status\G;" | awk '/Seconds_Behind_Master/{print $2}')
 done
 
 echo "Replication is in sync. Stopping replication before backup..."
 
 # Stop replication on the replica server
-mysql -h "$REPLICA_DB_SERVER_NAME".mysql.database.azure.com -u "$DB_USER_NAME" -p'"$DB_USER_NAME"' -e "call mysql.az_replication_stop;"
+mysql -h "$REPLICA_DB_SERVER_NAME".mysql.database.azure.com -u "$DB_USER_NAME" -p'"$DB_PASSWORD"' -e "call mysql.az_replication_stop;"
 
 # Check replication status after stopping replication
-slave_io_running=$(mysql -h "$REPLICA_DB_SERVER_NAME".mysql.database.azure.com -u "$DB_USER_NAME" -p'"$DB_USER_NAME"' -e "show slave status\G;" | awk '/Slave_IO_Running/{print $2}')
+slave_io_running=$(mysql -h "$REPLICA_DB_SERVER_NAME".mysql.database.azure.com -u "$DB_USER_NAME" -p'"$DB_PASSWORD"' -e "show slave status\G;" | awk '/Slave_IO_Running/{print $2}')
 if [[ "$slave_io_running" == "No" ]]
 then
     echo "Replication stopped successfully. Proceeding with backup..."
@@ -54,4 +54,5 @@ then
 else
     echo "Failed to stop replication. Please check the replication status and troubleshoot if needed."
 fi
+
 
