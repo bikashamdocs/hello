@@ -1,0 +1,28 @@
+trigger:
+- main
+
+stages:
+- stage: dev
+  variables:
+  - group: DevSecretsGroup
+  jobs:
+  - job: echo_dev_variable
+    displayName: 'Echo Dev Variable'
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+    - script: echo $(ASSETS_SAS_TOKEN)
+      displayName: 'Echo ASSETS_SAS_TOKEN for Dev'
+
+- stage: prod
+  variables:
+  - group: ProdSecretsGroup
+  jobs:
+  - job: echo_prod_variable
+    displayName: 'Echo Prod Variable'
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+    - script: echo $(ASSETS_SAS_TOKEN)
+      displayName: 'Echo ASSETS_SAS_TOKEN for Prod'
+
